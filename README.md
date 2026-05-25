@@ -26,22 +26,20 @@ PowerShellで `npm` が止められる場合は、次のように `npm.cmd` を�
 npm.cmd run dev
 ```
 
-## ORPHEUS Automata
+## 汚染システム
 
-この版には、OpenAI APIを使わない無料の機械生成分岐があります。
+この版には、OpenAI APIを使わない無料の汚染システムがあります。
 
-選択肢画面で `ORPHEUS Automataを起動する` を押すと、プレイヤーの選択履歴から、その場だけの反応や分岐を生成します。
+プレイヤーの入力語と選択履歴から、通常の選択肢・反応・エンディングが少しずつ汚染されます。
 
-選択肢画面では、プレイヤーが短い言葉を入力して ORPHEUS に記憶させることもできます。入力された言葉は、Automataの反応や専用エンディングに混ざります。
+選択肢画面では、プレイヤーが短い言葉を入力して ORPHEUS に記憶させることができます。入力された言葉は変形され、後の反応やエンディングに混ざります。
 
-記憶が一定以上たまると、ボタンが `ORPHEUS Automataの結末を見る` に変わり、専用エンディングへ進めます。
-
-詳しくは `docs/orpheus-automata.md` を見てください。
+詳しくは `docs/contamination-system.md` を見てください。
 
 ## よく編集する場所
 
 - `src/data/scenes.js`: シナリオ本文、選択肢、分岐先、通常エンディング
-- `src/utils/orpheusAutomata.js`: ORPHEUS Automata の記憶・分類・生成・専用エンディング
+- `src/utils/contamination.js`: 入力語・選択肢・反応・エンディングの汚染ルール
 - `src/data/assets.js`: 画像URL
 - `src/styles.css`: 見た目
 - `src/components/`: 画面部品
@@ -51,7 +49,7 @@ npm.cmd run dev
 
 文章だけ直したいときは、まず `src/data/scenes.js` を見れば大丈夫です。
 
-Automataの挙動を変えたいときは、`src/utils/orpheusAutomata.js` を編集します。
+汚染の挙動を変えたいときは、`src/utils/contamination.js` を編集します。
 
 選択肢の `next` には、次に進むシーンの `id` を書きます。存在しない `id` を書くと、選んだあとに想定外の画面になります。
 

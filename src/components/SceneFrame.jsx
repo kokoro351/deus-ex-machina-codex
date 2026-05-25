@@ -8,10 +8,8 @@ export default function SceneFrame({
   onMove,
   onChoose,
   displayedChoices,
-  onGenerateAutomataBranch,
   onPlayerInputChange,
   onRememberInput,
-  canGenerateAutomataEnding,
   memorySummary,
   playerInput,
 }) {
@@ -22,12 +20,6 @@ export default function SceneFrame({
   const isEnding = scene.type === "ending"
   const highRisk = isChoice && scene.status.collapse >= 40
   const godRisk = isChoice && scene.status.god >= 80
-  const automataLabel = canGenerateAutomataEnding
-    ? "ORPHEUS Automataの結末を見る"
-    : "ORPHEUS Automataを起動する"
-  const automataNote = canGenerateAutomataEnding
-    ? "記憶が臨界に達しています。選択履歴から専用エンディングを生成します"
-    : "無料。選択履歴から、その場だけの分岐を機械生成します"
 
   return (
     <main className={`app-shell ${godRisk ? "deus-pulse" : ""}`}>
@@ -78,7 +70,7 @@ export default function SceneFrame({
               </div>
             </form>
           )}
-          {isChoice && <div className="memory-line">ORPHEUS記憶: {memorySummary}</div>}
+          {isChoice && <div className="memory-line">汚染記録: {memorySummary}</div>}
           {isEnding && <div className="ending-result">{scene.result}</div>}
         </section>
 
@@ -87,12 +79,6 @@ export default function SceneFrame({
         <section className="action-panel">
           {isTitle && <PrimaryButton onClick={() => onMove(scene.next)}>START</PrimaryButton>}
           {isPrologue && <PrimaryButton onClick={() => onMove(scene.next)}>{scene.button}</PrimaryButton>}
-          {isChoice && (
-            <button onClick={onGenerateAutomataBranch} className={canGenerateAutomataEnding ? "automata-button ending-ready" : "automata-button"}>
-              <span>{automataLabel}</span>
-              <small>{automataNote}</small>
-            </button>
-          )}
           {isChoice && displayedChoices.map((choice, index) => (
             <button key={`${scene.id}-${choice.label}`} onClick={() => onChoose(choice)} className="choice-button">
               <span>{index + 1}. {choice.label}</span>

@@ -2,14 +2,14 @@ import { useMemo, useState } from "react"
 import SceneFrame from "./components/SceneFrame.jsx"
 import { scenes } from "./data/scenes.js"
 import {
-  buildAutomataScene,
   contaminateChoices,
+  contaminateEndingScene,
+  contaminateReactionScene,
   createInitialMemory,
   rememberChoice,
   rememberPlayerInput,
-  shouldOfferAutomataEnding,
   summarizeMemory,
-} from "./utils/orpheusAutomata.js"
+} from "./utils/contamination.js"
 import { buildReactionScene } from "./utils/reactions.js"
 
 export default function App() {
@@ -17,7 +17,8 @@ export default function App() {
   const [reaction, setReaction] = useState(null)
   const [memory, setMemory] = useState(() => createInitialMemory())
   const [playerInput, setPlayerInput] = useState("")
-  const scene = reaction ?? scenes[sceneId] ?? scenes.title
+  const baseScene = reaction ?? scenes[sceneId] ?? scenes.title
+  const scene = baseScene.type === "ending" ? contaminateEndingScene(baseScene, memory) : baseScene
   const displayedChoices = scene.type === "choice" ? contaminateChoices(scene.choices, memory) : []
 
   const label = useMemo(() => {
@@ -38,14 +39,7 @@ export default function App() {
   function chooseAction(choice) {
     const nextMemory = rememberChoice(memory, scene, choice)
     setMemory(nextMemory)
-    setReaction(buildReactionScene(scene, choice))
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
-
-  function generateAutomataBranch() {
-    const result = buildAutomataScene(scene, memory)
-    setMemory(result.memory)
-    setReaction(result.scene)
+    setReaction(contaminateReactionScene(buildReactionScene(scene, choice), nextMemory))
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -62,10 +56,8 @@ export default function App() {
       onMove={moveToScene}
       onChoose={chooseAction}
       displayedChoices={displayedChoices}
-      onGenerateAutomataBranch={generateAutomataBranch}
       onPlayerInputChange={setPlayerInput}
       onRememberInput={submitPlayerInput}
-      canGenerateAutomataEnding={shouldOfferAutomataEnding(scene, memory)}
       memorySummary={summarizeMemory(memory)}
       playerInput={playerInput}
     />
