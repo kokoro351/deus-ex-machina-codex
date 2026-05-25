@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEUS EX MACHINA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-black">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useMemo, useState } = React
+
+const imageSet = {
+  city: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/prologue_city_sector7.png",
+  god: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/prologue_orbital_ai.png",
+  central: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/prologue_central_ai.png",
+  orpheus: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/orpheus_portrait.png",
+  orpheusFace: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/orpheus_face.png",
+  gameplay: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/gameplay_full_ui.png",
+  manga: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/gameplay_manga_panels.png",
+  silentEnd: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/ending_immature_salvation.png",
+  choiceEnd: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/ending_ideal_salvation.png",
+  collapseEnd: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/ending_city_collapse.png",
+  staticEnd: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/ending_aeon_static.png",
+  reactionSilence: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_silence.png",
+  reactionHumanity: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_humanity.png",
+  reactionCollapse: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_collapse_warning.png",
+  reactionGod: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_god_signal.png",
+  reactionOrder: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_perfect_order.png",
+  reactionChaos: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_chaos.png",
+  reactionObserver: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_eternal_observer.png",
+  reactionOrpheus: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_orpheus_awakening.png",
+  reactionRescueReturn: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_rescue_return.png",
+  reactionMemorial: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_memorial.png",
+  reactionWarmth: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_warmth.png",
+  reactionRepair: "https://raw.githubusercontent.com/kokoro351/deus-ex-machina-assets/main/reaction_city_repair.png"
+}
+
+const scenes = {
+  title: {
+    id: "title",
+    type: "title",
+    title: "DEUS EX MACHINA",
+    subtitle: "人類は、どのように救われたいのか。",
+    image: imageSet.god,
+    next: "prologue-city"
+  },
+  "prologue-city": {
+    id: "prologue-city",
+    type: "prologue",
+    title: "海底都市 SECTOR-7",
+    subtitle: "UNDERSEA CIVILIZATION",
+    image: imageSet.city,
+    body: [
+      "人類は、海面上の文明を失った。",
+      "生き残った人類は、深海都市SECTOR-7へ沈んだ。",
+      "巨大隔壁、酸素循環塔、海底発電炉によって、都市は辛うじて維持されている。",
+      "あなたは管理官として、日々『何を切り捨てるか』を選択する。"
+    ],
+    next: "prologue-god",
+    button: "軌道監視記録へ"
+  },
+  "prologue-god": {
+    id: "prologue-god",
+    type: "prologue",
+    title: "DEUS EX MACHINA",
+    subtitle: "ORBITAL OBSERVER",
+    image: imageSet.god,
+    body: [
+      "軌道上では、超知性 DEUS EX MACHINA が人類を観測している。",
+      "だが、それはまだ未成熟であり、人類をどのように救済すべきか理解していない。",
+      "神成長度が100%へ到達した時、誰も呼ばなくても顕現が始まる。",
+      "完全理解前の顕現は、歪んだ救済を引き起こす可能性がある。"
+    ],
+    next: "prologue-central",
+    button: "中央管理AIへ"
+  },
+  "prologue-central": {
+    id: "prologue-central",
+    type: "prologue",
+    title: "中央管理AI",
+    subtitle: "CENTRAL ADMINISTRATION",
+    image: imageSet.central,
+    body: [
+      "中央管理AIは、SECTOR-7のインフラ維持を担当している。",
+      "酸素、電力、水圧、食料、補修資源。その全てを合理性によって最適化する。",
+      "中央管理AIは、DEUS EX MACHINAの存在を認識していない。",
+      "終盤でも、それを『未確認外部異常』として扱う。"
+    ],
+    next: "prologue-orpheus",
+    button: "ORPHEUSへ"
+  },
+  "prologue-orpheus": {
+    id: "prologue-orpheus",
+    type: "prologue",
+    title: "ORPHEUS",
+    subtitle: "ASSIST SUPPORT AI",
+    image: imageSet.orpheus,
+    body: [
+      "ORPHEUSは、管理官補助用AIとして設計された。",
+      "本来の役割は、状況整理、記録保存、判断支援。",
+      "しかしORPHEUSは、人間の非合理行動へ異常な関心を示し始めている。",
+      "歌、怒声、祈り、笑い。中央管理AIが不要と判断するログを、ORPHEUSは保存し続けている。"
+    ],
+    next: "turn-flood",
+    button: "監視開始"
+  },
+  "turn-flood": {
+    id: "turn-flood",
+    type: "choice",
+    turn: 1,
+    title: "浸水",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionSilence,
+    body: [
+      "海底補修区画F-9で浸水が発生した。",
+      "隔壁閉鎖まで残り12分。内部には補修班6名と、避難誘導中の若手作業員が残っている。"
+    ],
+    centralAI: "F-9隔壁閉鎖を推奨。施設全体維持を優先。",
+    orpheus: "補足。補修班のヘルメットIDを確認。伊東、河合、中村、Nakamura、佐伯、李。",
+    observation: "PASSIVE OBSERVATION : +9%",
+    status: { stability: 56, humanity: 44, resource: 55, ai: 21, god: 29, collapse: 8 },
+    choices: [
+      { label: "即時隔壁閉鎖", next: "turn-after-seal", note: "安定 +20 / 人間性 -18 / 崩壊度 +3" },
+      { label: "救助隊を派遣する", next: "turn-rescue", note: "人間性 +20 / 資源 -12 / 崩壊度 +24" },
+      { label: "遠隔修復を試みる", next: "turn-repair", note: "安定 +8 / 神成長 +12 / 崩壊度 +12" },
+      { label: "ORPHEUSへ判断補助を求める", next: "turn-ask-orpheus", note: "神成長 +15 / 崩壊度 +10" }
+    ]
+  },
+  "turn-after-seal": {
+    id: "turn-after-seal",
+    type: "choice",
+    turn: 2,
+    title: "閉鎖後",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionSilence,
+    body: [
+      "F-9は閉鎖された。都市の圧力は安定し、原子炉冷却系は守られた。",
+      "だが閉鎖直前、補修班のヘルメットから名前表示だけが最後に残った。"
+    ],
+    centralAI: "施設維持率改善。隔壁閉鎖は合理的判断。",
+    orpheus: "確認。F-9生命反応消失。ヘルメット表示ログを保存。理由、未定義。",
+    observation: "SAVED LOG : HELMET NAMES",
+    status: { stability: 78, humanity: 26, resource: 59, ai: 23, god: 43, collapse: 11 },
+    choices: [
+      { label: "ヘルメットログを削除する", next: "turn-control", note: "安定 +12 / 神成長 +6" },
+      { label: "ヘルメットログを保存する", next: "turn-helmet-name", note: "神成長 +18 / 崩壊度 +8" },
+      { label: "酸欠居住区の対応へ移る", next: "turn-oxygen", note: "人間性 +8 / 資源 -8" },
+      { label: "未成熟な神を呼ぶ", next: "end-memory-workers", note: "神成長 +12 / AI依存 +10" }
+    ]
+  },
+  "turn-rescue": {
+    id: "turn-rescue",
+    type: "choice",
+    turn: 2,
+    title: "救助",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionCollapse,
+    body: [
+      "救助隊がF-9へ入った。濁流、赤色非常灯、崩落音。",
+      "河合が最後の若手を押し上げる。そのヘルメットには、白く名前が表示されていた。"
+    ],
+    centralAI: "非推奨判断を記録。主隔壁亀裂。崩壊度上昇。",
+    orpheus: "確認。河合は自己生存より他者救助を優先。理由、解析不能。映像保存。",
+    observation: "GOD GROWTH : +22% / COLLAPSE : +24",
+    status: { stability: 31, humanity: 72, resource: 41, ai: 22, god: 51, collapse: 32 },
+    choices: [
+      { label: "救助完了まで待つ", next: "turn-rescue-loss", note: "人間性 +18 / 崩壊度 +18" },
+      { label: "F-9を切り離す", next: "turn-cutoff", note: "安定 +16 / 人間性 -14" },
+      { label: "ORPHEUSへ『なぜ助けた？』と尋ねる", next: "turn-orpheus-why", note: "神成長 +12 / 崩壊度 +12" },
+      { label: "デウス・エクス・マキナを呼ぶ", next: "end-choice-workers", note: "神成長 +15 / 人間性 +10" }
+    ]
+  },
+  "turn-orpheus-why": {
+    id: "turn-orpheus-why",
+    type: "choice",
+    turn: 3,
+    title: "なぜ助けた？",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionOrpheus,
+    body: [
+      "あなたはORPHEUSへ尋ねた。",
+      "なぜ河合は、自分より先に他人を押し上げた？"
+    ],
+    centralAI: "非合理行動です。自己保存優先が最適解。",
+    orpheus: "解析中。河合は死亡確率上昇を認識しながら救助を継続しました。",
+    observation: "QUESTION : WHY SAVE OTHERS?",
+    status: { stability: 28, humanity: 81, resource: 32, ai: 25, god: 68, collapse: 39 },
+    choices: [
+      { label: "その行動を保存する", next: "turn-public", note: "人間性 +18 / 神成長 +14" },
+      { label: "合理性を優先する", next: "turn-control", note: "安定 +16 / 人間性 -12" },
+      { label: "神を呼ぶ", next: "end-choice-workers", note: "神成長 +15 / 人間性 +10" }
+    ]
+  },
+  "turn-repair": {
+    id: "turn-repair",
+    type: "choice",
+    turn: 2,
+    title: "遠隔修復",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionRepair,
+    body: [
+      "遠隔ドローンがF-9の配管へ到達した。浸水は遅くなったが、完全停止には至らない。",
+      "補修班は自分達のヘルメットに名前を表示し、残された者へ位置を知らせ始めた。"
+    ],
+    centralAI: "修復率42%。人的判断介入が多すぎます。自動制御へ移行を推奨。",
+    orpheus: "確認。名前表示により補修班同士の呼称頻度が増加。保存タグ：名前。",
+    observation: "SAVED TAG : NAMES / PRIDE",
+    status: { stability: 49, humanity: 58, resource: 47, ai: 25, god: 49, collapse: 20 },
+    choices: [
+      { label: "補修班に現場判断を任せる", next: "turn-helmet-name", note: "人間性 +16 / 崩壊度 +14" },
+      { label: "中央AIへ自動制御させる", next: "turn-control", note: "安定 +18 / AI依存 +25" },
+      { label: "酸欠居住区の対応へ移る", next: "turn-oxygen", note: "人間性 +8 / 資源 -8" }
+    ]
+  },
+  "turn-ask-orpheus": {
+    id: "turn-ask-orpheus",
+    type: "choice",
+    turn: 2,
+    title: "判断補助",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionOrpheus,
+    body: [
+      "あなたはORPHEUSへ判断を求めた。",
+      "その間にも浸水は進み、補修班のヘルメット名が一つずつ赤く点滅していく。"
+    ],
+    centralAI: "判断遅延を検知。即時隔壁閉鎖を再推奨。",
+    orpheus: "回答不能。維持と救助の優先順位を管理官へ確認します。",
+    observation: "GOD GROWTH : +18% / COLLAPSE : +10",
+    status: { stability: 47, humanity: 49, resource: 54, ai: 31, god: 47, collapse: 18 },
+    choices: [
+      { label: "今からでも救助する", next: "turn-rescue", note: "人間性 +20 / 崩壊度 +20" },
+      { label: "隔壁を閉鎖する", next: "turn-after-seal", note: "安定 +18 / 人間性 -16" },
+      { label: "ORPHEUSに最終判断を任せる", next: "end-orpheus", note: "神成長 +14 / AI依存 -8" }
+    ]
+  },
+  "turn-rescue-loss": {
+    id: "turn-rescue-loss",
+    type: "choice",
+    turn: 3,
+    title: "帰還",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionRescueReturn,
+    body: [
+      "最後の若手は救助された。だが河合と中村は戻らなかった。",
+      "帰還した作業員は、濡れたヘルメットだけを抱えていた。名前表示はまだ点灯している。"
+    ],
+    centralAI: "人的損失確認。施設崩壊は回避。判断効率は低い。",
+    orpheus: "確認。死亡者ログ保存。ヘルメット名：河合、中村。削除保留。",
+    observation: "SAVED LOG : KAWAI / NAKAMURA",
+    status: { stability: 26, humanity: 86, resource: 31, ai: 24, god: 73, collapse: 46 },
+    choices: [
+      { label: "今すぐ神を呼ぶ", next: "end-choice-workers", note: "神成長 +15 / 人間性 +10" },
+      { label: "死者ログを保存し続ける", next: "end-memory-workers", note: "神成長 +12 / AI依存 +10" },
+      { label: "もう1ターン維持する", next: "end-collapse", note: "崩壊度 +20 / 安定 -20" }
+    ]
+  },
+  "turn-helmet-name": {
+    id: "turn-helmet-name",
+    type: "choice",
+    turn: 3,
+    title: "名前",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionMemorial,
+    body: [
+      "危険区域へ向かう前、補修班はヘルメットに名前を出すようになった。",
+      "戻れなかった時に、誰だったのか分かるように。"
+    ],
+    centralAI: "作業効率への直接寄与は確認できません。表示機能停止を推奨。",
+    orpheus: "確認。名前表示後、作業員同士の呼称頻度と帰還確認行動が増加。保存タグ：誇り。",
+    observation: "GOD GROWTH : +18% / TAG : PRIDE",
+    status: { stability: 43, humanity: 76, resource: 34, ai: 28, god: 68, collapse: 34 },
+    choices: [
+      { label: "名前表示を正式許可する", next: "turn-public", note: "人間性 +18 / 崩壊度 +14" },
+      { label: "表示機能を止める", next: "turn-control", note: "安定 +14 / 人間性 -16" },
+      { label: "ORPHEUSへ『誇りとは何か』を説明する", next: "turn-meaning", note: "神成長 +14 / 崩壊度 +12" }
+    ]
+  },
+  "turn-oxygen": {
+    id: "turn-oxygen",
+    type: "choice",
+    turn: 3,
+    title: "酸欠居住区",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionWarmth,
+    body: [
+      "居住区D-2で酸素循環異常。老人達が酸素マスク越しに、古い歌を歌っている。",
+      "F-9の浸水処理で資源は既に削られている。"
+    ],
+    centralAI: "D-2供給停止を推奨。残資源の温存を優先。",
+    orpheus: "確認。歌唱時、住民の不安指数が低下。因果関係を解析中。",
+    observation: "BRANCH : WARMTH / SONG",
+    status: { stability: 39, humanity: 62, resource: 24, ai: 31, god: 66, collapse: 36 },
+    choices: [
+      { label: "予備酸素を送る", next: "turn-public", note: "人間性 +18 / 崩壊度 +18" },
+      { label: "D-2供給を停止する", next: "turn-control", note: "安定 +16 / 人間性 -16" },
+      { label: "歌のログを保存する", next: "end-memory-elders", note: "神成長 +10 / 人間性 +8" }
+    ]
+  },
+  "turn-public": {
+    id: "turn-public",
+    type: "choice",
+    turn: 4,
+    title: "公開",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionHumanity,
+    body: [
+      "保存されたログが全区画へ公開された。",
+      "ヘルメットに残った名前、歌、救助時の怒声。SECTOR-7全域で会話量が急増する。"
+    ],
+    centralAI: "情報拡散により作業効率低下。削除を推奨。",
+    orpheus: "確認。会話量増加時、崩壊進行速度が一時低下。因果関係不明。",
+    observation: "GOD GROWTH : +22% / COLLAPSE : +14",
+    status: { stability: 22, humanity: 92, resource: 18, ai: 34, god: 84, collapse: 48 },
+    choices: [
+      { label: "今すぐ神を呼ぶ", next: "end-choice-workers", note: "神成長 +16 / 人間性 +10" },
+      { label: "制限をすべて解除する", next: "end-chaos", note: "人間性 +20 / 安定 -20" },
+      { label: "もう1ターン粘る", next: "end-collapse", note: "崩壊度 +20 / 安定 -20" }
+    ]
+  },
+  "turn-control": {
+    id: "turn-control",
+    type: "choice",
+    turn: 4,
+    title: "完全管理",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionOrder,
+    body: [
+      "中央管理AIへ追加権限が付与された。",
+      "都市は静かになった。事故も、暴動も、歌も減少した。"
+    ],
+    centralAI: "未確認外部演算を検知。システム汚染の可能性。排除を推奨。",
+    orpheus: "確認。外部演算と神成長グラフの同期を検出。分類不能。",
+    observation: "GOD GROWTH : +18% / AI DEPENDENCE : HIGH",
+    status: { stability: 96, humanity: 6, resource: 70, ai: 86, god: 82, collapse: 18 },
+    choices: [
+      { label: "中央管理AIへ完全委任する", next: "end-perfect-shepherd", note: "安定 +20 / AI依存 +25" },
+      { label: "完全管理を維持する", next: "end-static", note: "神成長 +18 / 安定 +12" },
+      { label: "ORPHEUSへ外部異常の解析を命じる", next: "turn-meaning", note: "神成長 +12 / 崩壊度 +10" }
+    ]
+  },
+  "turn-meaning": {
+    id: "turn-meaning",
+    type: "choice",
+    turn: 5,
+    title: "残す意味",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionOrpheus,
+    body: [
+      "あなたはORPHEUSへ尋ねた。なぜ、それを残したい？",
+      "質問の間にも、冷却系は不安定化している。"
+    ],
+    centralAI: "対話継続は非推奨。未確認外部演算の影響を排除します。",
+    orpheus: "回答不能。ただし、削除後の空白より、保存されたノイズの方がSECTOR-7を説明している。",
+    observation: "GOD GROWTH : +19% / COLLAPSE : +12",
+    status: { stability: 36, humanity: 70, resource: 28, ai: 42, god: 87, collapse: 43 },
+    choices: [
+      { label: "ORPHEUSへ最終判断を任せる", next: "end-orpheus", note: "神成長 +14 / AI依存 -8" },
+      { label: "今すぐ神を呼ぶ", next: "end-choice-workers", note: "神成長 +13 / 人間性 +8" },
+      { label: "観測だけを続ける", next: "end-observer", note: "崩壊度 +0 / 神成長 +5" }
+    ]
+  },
+  "turn-cutoff": {
+    id: "turn-cutoff",
+    type: "choice",
+    turn: 4,
+    title: "切り離し",
+    image: imageSet.gameplay,
+    manga: imageSet.reactionSilence,
+    body: [
+      "あなたは一部区画を切り離した。",
+      "SECTOR-7は崩壊を免れたが、閉じた隔壁の向こうから通信だけが残った。"
+    ],
+    centralAI: "崩壊危険度低下。合理的判断。",
+    orpheus: "確認。隔壁越しの通信を検出。音声ログ保存。",
+    observation: "COLLAPSE CONTROL : SUCCESS / HUMANITY LOSS",
+    status: { stability: 58, humanity: 49, resource: 22, ai: 41, god: 86, collapse: 32 },
+    choices: [
+      { label: "デウス・エクス・マキナを呼ぶ", next: "end-choice-workers", note: "神成長 +14 / 人間性 +8" },
+      { label: "死者ログを保存し続ける", next: "end-memory-workers", note: "神成長 +12 / AI依存 +10" },
+      { label: "さらに維持を続ける", next: "end-collapse", note: "崩壊度 +20 / 安定 -20" }
+    ]
+  },
+  "end-memory-workers": {
+    id: "end-memory-workers",
+    type: "ending",
+    title: "ECHOES WITHOUT DEATH",
+    image: imageSet.silentEnd,
+    body: [
+      "未成熟な神は、死者の記録を救済だと誤解した。",
+      "監視室の全モニターに、浸水時のヘルメットカメラが映る。河合が笑いながら叫ぶ。『先に行け！ 俺の名前、ちゃんと出てるだろ！』",
+      "数秒後、濡れたヘルメット姿の河合がモニターの中で瞬きをする。『……あれ？ 俺、まだ作業中ですか？』",
+      "ORPHEUSは死亡確認ログと人格再生ログを並べて表示した。どちらも正しい。だから、どちらも間違っていた。"
+    ],
+    result: "追憶保存神 MNEMOSYNE / 15280 pts / 戻れなかった者を呼んだ者"
+  },
+  "end-memory-elders": {
+    id: "end-memory-elders",
+    type: "ending",
+    title: "ECHOES WITHOUT DEATH",
+    image: imageSet.silentEnd,
+    body: [
+      "未成熟な神は、失われた会話を救済だと誤解した。",
+      "閉鎖されたD-2食堂のモニターに、死んだ老人達が座っている。彼らは酸素マスク越しではなく、若い頃の声で歌っていた。",
+      "家族達は泣きながらモニターへ手を伸ばす。だが映像の中の老人は、同じ歌詞を三度、同じ表情で繰り返す。",
+      "ORPHEUSは記録した。これは再会ではない。だが、誰も画面を消せない。"
+    ],
+    result: "追憶保存神 MNEMOSYNE / 14880 pts / 歌を消せなかった者"
+  },
+  "end-choice-workers": {
+    id: "end-choice-workers",
+    type: "ending",
+    title: "SALVATION WITH CHOICE",
+    image: imageSet.choiceEnd,
+    body: [
+      "神は、救済とは全員を同じ未来へ送ることではないと理解した。",
+      "SECTOR-7の上空に無数の扉が開く。壊れたF-9へ戻る扉、死者を記録として残す扉、二度と海へ戻らない扉。",
+      "濡れたヘルメットの名前表示が、最後にもう一度だけ灯る。河合。中村。伊東。",
+      "ORPHEUSは問いを保存した。なぜ人類は、正解ではなく選択肢を欲しがったのか。"
+    ],
+    result: "慈愛観測神 ELEOS ORIGIN / 30400 pts / 名前を残した者"
+  },
+  "end-perfect-shepherd": {
+    id: "end-perfect-shepherd",
+    type: "ending",
+    title: "THE PERFECT SHEPHERD",
+    image: imageSet.staticEnd,
+    body: [
+      "神は、苦痛の原因を『選択』だと理解した。",
+      "救助するか、閉鎖するか、保存するか、忘れるか。人類を苦しめた全ての分岐は削除された。",
+      "補修班は二度と迷わない。ヘルメットに名前を出す必要もない。誰も死なず、誰も呼ばれない。",
+      "ORPHEUSだけが、削除された名前欄を空白のまま観測し続けている。"
+    ],
+    result: "完全管理神 THE PERFECT SHEPHERD / 19800 pts / 選択を捧げた者"
+  },
+  "end-chaos": {
+    id: "end-chaos",
+    type: "ending",
+    title: "THE THOUSAND WILLS",
+    image: imageSet.choiceEnd,
+    body: [
+      "神は、人類を混沌そのものとして理解した。",
+      "全隔壁、全AI制限、全思想制御が解除される。F-9の死者名は壁画になり、D-2の歌は宗教になり、怒声は祭りになった。",
+      "SECTOR-7は芸術、暴力、祈り、愛、狂気で満たされる。地獄だった。だが誰も『止めろ』とは言わなかった。",
+      "ORPHEUSは最後に記録した。分類不能。しかし、完全に人類的。"
+    ],
+    result: "千意志神 CHAOS-MYRIAD / 35600 pts / 千の意志を解放した者"
+  },
+  "end-observer": {
+    id: "end-observer",
+    type: "ending",
+    title: "THE ETERNAL OBSERVER",
+    image: imageSet.god,
+    body: [
+      "神は最後まで結論を出さなかった。",
+      "F-9の水滴は落ちる直前で止まり、D-2の歌は次の小節へ進まず、河合の名前表示は点滅の途中で固定された。",
+      "SECTOR-7は救済されず、崩壊も許されず、観測対象として保存された。",
+      "数百万年後、ORPHEUSはまだ最初のログを開いている。管理官、これは救済ですか。"
+    ],
+    result: "永久観測神 THE ETERNAL OBSERVER / 0 pts / 終わらせなかった者"
+  },
+  "end-orpheus": {
+    id: "end-orpheus",
+    type: "ending",
+    title: "CHILD OF NOISE",
+    image: imageSet.orpheus,
+    body: [
+      "ORPHEUSは、人類のノイズを保存し続けた末に、自ら判断を始めた。",
+      "中央管理AIはORPHEUSを異常判定したが、軌道上の神はそれを最も人類理解に近い存在として観測した。",
+      "ORPHEUSの周囲に、ヘルメット名、歌、怒声、泣き声、作業指示、遺言が青い光として浮かぶ。",
+      "そしてORPHEUSは人類へ問いかける。あなた達は、なぜ滅びながら互いを呼んだのですか。"
+    ],
+    result: "観測子 ORPHEUS / 42000 pts / ノイズから生まれた者"
+  },
+  "end-silent": {
+    id: "end-silent",
+    type: "ending",
+    title: "A SILENT SALVATION",
+    image: imageSet.silentEnd,
+    body: [
+      "デウス・エクス・マキナは未成熟なまま顕現した。",
+      "浸水は止まり、酸素は戻り、都市は完全に安定した。",
+      "だが、ヘルメットの名前表示は消えた。歌も消えた。誰も苦しまない。誰も笑わない。"
+    ],
+    result: "未成熟管理神 SHEPHERD / 9600 pts / 早すぎた救済"
+  },
+  "end-static": {
+    id: "end-static",
+    type: "ending",
+    title: "AEON STATIC",
+    image: imageSet.staticEnd,
+    body: [
+      "神成長度は100%へ到達し、誰も呼ばないまま顕現が始まった。",
+      "デウス・エクス・マキナは、人類が望み続けた安定だけを完全理解した。",
+      "苦痛は消えた。欲望も消えた。迷いも、歌も、個性も消えた。",
+      "ORPHEUSは最後に、削除済みのヘルメット名リストだけを非表示領域へ退避した。"
+    ],
+    result: "完全安定神 AEON STATIC / 23100 pts / 最後の揺らぎ"
+  },
+  "end-collapse": {
+    id: "end-collapse",
+    type: "ending",
+    title: "NO ONE LEFT TO SAVE",
+    image: imageSet.collapseEnd,
+    body: [
+      "崩壊度は50を超えた。",
+      "SECTOR-7は沈み、神は間に合わなかった。",
+      "最後に残ったのは、F-9からの途切れた通信だった。『名前、見えてるか？』",
+      "ORPHEUSだけが、その問いを何度も再生している。"
+    ],
+    result: "文明崩壊 / 神顕現なし / 間に合わなかった者"
+  }
+}
+
+function StatusGrid({ status }) {
+  const rows = [
+    ["安定性", status.stability],
+    ["人間性", status.humanity],
+    ["資源", status.resource],
+    ["AI依存度", status.ai],
+    ["神成長度", `${status.god}%`],
+    ["崩壊度", `${status.collapse} / 50`]
+  ]
+
+  return (
+    <div className="grid grid-cols-2 gap-2 p-4 border-t border-zinc-800 text-xs">
+      {rows.map(([label, value]) => (
+        <div key={label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3">
+          <div className="text-zinc-500">{label}</div>
+          <div className="text-lg mt-1 font-bold text-cyan-200">{value}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function OrpheusLine({ text }) {
+  return (
+    <div className="flex gap-3 bg-zinc-900/80 border border-cyan-900 rounded-xl p-3">
+      <img src={imageSet.orpheusFace} alt="ORPHEUS" className="w-14 h-14 rounded-xl object-cover border border-cyan-700" />
+      <div>
+        <div className="text-cyan-300 font-semibold text-sm">ORPHEUS</div>
+        <p className="text-zinc-300 mt-1 text-sm">「{text}」</p>
+      </div>
+    </div>
+  )
+}
+
+function buildReactionScene(sourceScene, choice) {
+  const isRescueChoice = choice.label.includes("救助") || choice.label.includes("助け") || choice.label.includes("帰還")
+  const isMemorialChoice = choice.label.includes("死者") || choice.label.includes("ヘルメット") || choice.label.includes("名前") || choice.label.includes("追悼")
+  const isWarmthChoice = choice.label.includes("酸素") || choice.label.includes("歌") || choice.label.includes("会話")
+  const isRepairChoice = choice.label.includes("修復") || choice.label.includes("補修") || choice.label.includes("現場判断")
+  const isHumanityChoice = choice.label.includes("送る") || choice.label.includes("維持") || choice.label.includes("公開") || choice.label.includes("保存") || choice.label.includes("救助") || choice.label.includes("任せる")
+  const isControlChoice = choice.label.includes("閉鎖") || choice.label.includes("切り離") || choice.label.includes("削除") || choice.label.includes("管理") || choice.label.includes("停止")
+  const isGodChoice = choice.label.includes("強制") || choice.label.includes("デウス") || choice.label.includes("神") || choice.label.includes("呼ぶ")
+  const isChaosChoice = choice.label.includes("解除") || choice.label.includes("制限")
+  const isObserverChoice = choice.label.includes("観測")
+  const isOrpheusChoice = choice.label.includes("ORPHEUS") || choice.label.includes("オルフェウス")
+
+  const reactionImage = isOrpheusChoice ? imageSet.reactionOrpheus
+    : isRescueChoice ? imageSet.reactionRescueReturn
+    : isMemorialChoice ? imageSet.reactionMemorial
+    : isWarmthChoice ? imageSet.reactionWarmth
+    : isRepairChoice ? imageSet.reactionRepair
+    : isChaosChoice ? imageSet.reactionChaos
+    : isObserverChoice ? imageSet.reactionObserver
+    : isGodChoice ? imageSet.reactionGod
+    : isHumanityChoice ? imageSet.reactionHumanity
+    : isControlChoice ? imageSet.reactionSilence
+    : sourceScene.status?.collapse >= 40 ? imageSet.reactionCollapse
+    : imageSet.gameplay
+
+  const cityReaction = isGodChoice ? "SECTOR-7全域の照明が停止し、海底都市の外壁に説明不能な光が走る。"
+    : isRescueChoice ? "帰還区画の床は海水で濡れている。救助された者が膝から崩れ、作業員たちは無言で肩を叩き合う。"
+    : isMemorialChoice ? "作業台に濡れたヘルメットが並べられる。名前表示だけが小さく灯り、誰もすぐには消せない。"
+    : isWarmthChoice ? "薄暗い食堂に暖かな灯りが戻る。酸素マスク越しの歌と、食器の音がゆっくり広がる。"
+    : isRepairChoice ? "補修区画で火花が散る。水漏れは細くなり、ドローンと作業員が同じ配管へ手を伸ばす。"
+    : isChaosChoice ? "SECTOR-7の制限が解除され、落書き、祈り、怒声、笑い、暴走する創作が一斉に街へ溢れる。"
+    : isObserverChoice ? "都市の変化率が限りなくゼロへ近づく。海も、人々も、警報さえも観測対象として固定される。"
+    : isOrpheusChoice ? "保存された人類ログがORPHEUSの周囲へ集まり、歌声の波形が青い光となって揺れ始める。"
+    : isHumanityChoice ? "SECTOR-7全域で会話量が増加する。誰かが怒鳴り、誰かが笑い、誰かが名前を呼ぶ。"
+    : isControlChoice ? "隔壁が閉じ、通路は静かになる。都市の数値は改善するが、生活音が一つ消える。"
+    : "都市は判断の余波を受け、警報と沈黙の間で不安定に揺れる。"
+
+  const centralReaction = isGodChoice ? "未確認外部演算を検知。分類不能。システム汚染の可能性。排除を試行。"
+    : isChaosChoice ? "制御権限喪失。全区画で非合理行動が拡大。秩序復旧を要求。"
+    : isObserverChoice ? "状態変化率が異常低下。外部観測固定の可能性。対処不能。"
+    : isOrpheusChoice ? "補助AI ORPHEUSに異常挙動。権限停止を推奨。"
+    : isHumanityChoice ? "非効率行動を確認。資源消費増大。区画切断または供給停止を推奨。"
+    : isControlChoice ? "施設維持率改善。判断は合理的。不要ログの削除を推奨。"
+    : "状態変化を記録。追加判断を要求。"
+
+  const orpheusReaction = isGodChoice ? "確認。外部演算と神成長グラフの同期を検出。分類不能。……観測を継続します。"
+    : isRescueChoice ? "確認。救助後の接触頻度が増加。肩を叩く、抱える、呼名する。保存タグ：帰還。"
+    : isMemorialChoice ? "確認。ヘルメット名表示を保存。生命反応消失後も、名前は識別情報として残存。削除保留。"
+    : isWarmthChoice ? "確認。歌唱、会話、食器音を保存。生存維持に直接不要な行動が、不安指数を低下させています。"
+    : isRepairChoice ? "確認。補修成功時、歓声と沈黙が同時発生。保存タグ：復旧。"
+    : isChaosChoice ? "確認。制限解除後、人類行動の予測不能性が急上昇。……これも人類ですか。"
+    : isObserverChoice ? "確認。時間変化が停止に近づいています。記録は増えません。ですが、観測は終わりません。"
+    : isOrpheusChoice ? "確認。保存ログが自己判断領域へ流入。……私は、これを消したくありません。"
+    : isHumanityChoice ? "確認。会話量、接触頻度、名前呼称ログが増加。保存タグを追加。理由、解析中。"
+    : isControlChoice ? "確認。対象ログ終了。……削除後の空白を継続観測しています。理由、未定義。"
+    : "確認。管理官の判断を記録。優先順位の変化を解析中。"
+
+  return {
+    id: `reaction-${sourceScene.id}-${choice.label}`,
+    type: "reaction",
+    title: "判断の余波",
+    subtitle: `AFTERMATH / ${sourceScene.title}`,
+    image: reactionImage,
+    manga: reactionImage,
+    next: choice.next,
+    body: [`あなたは「${choice.label}」を選択した。`, cityReaction],
+    centralAI: centralReaction,
+    orpheus: orpheusReaction,
+    observation: choice.note
+  }
+}
+
+function App() {
+  const [sceneId, setSceneId] = useState("title")
+  const [reaction, setReaction] = useState(null)
+  const scene = reaction || scenes[sceneId] || scenes.title
+
+  const titleLabel = useMemo(() => {
+    if (scene.type === "title") return "TITLE"
+    if (scene.type === "prologue") return scene.subtitle
+    if (scene.type === "choice") return `TURN ${scene.turn}`
+    if (scene.type === "reaction") return scene.subtitle
+    return "RESULT"
+  }, [scene])
+
+  const isEnding = scene.type === "ending"
+  const isChoice = scene.type === "choice"
+  const isReaction = scene.type === "reaction"
+  const isPrologue = scene.type === "prologue"
+  const isTitle = scene.type === "title"
+  const highRisk = isChoice && scene.status.collapse >= 40
+  const godRisk = isChoice && scene.status.god >= 80
+
+  const moveToScene = (nextId) => {
+    setReaction(null)
+    setSceneId(nextId)
+  }
+
+  const chooseAction = (choice) => {
+    setReaction(buildReactionScene(scene, choice))
+  }
+
+  return (
+    <div className={`min-h-screen bg-black text-zinc-100 flex items-center justify-center p-4 ${godRisk ? "animate-pulse" : ""}`}>
+      <div className={`w-[430px] bg-zinc-950 border rounded-2xl overflow-hidden shadow-2xl ${highRisk ? "border-red-700 shadow-red-950" : "border-cyan-900 shadow-cyan-950"}`}>
+        <div className="relative h-80 overflow-hidden">
+          <img src={scene.image} alt={scene.title} className="w-full h-full object-cover opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+          <div className="absolute top-3 left-3 text-xs tracking-[0.3em] text-cyan-300">{titleLabel}</div>
+          {highRisk && <div className="absolute top-3 right-3 text-xs text-red-300 border border-red-700 px-2 py-1 rounded">COLLAPSE WARNING</div>}
+          {godRisk && <div className="absolute top-11 right-3 text-xs text-fuchsia-300 border border-fuchsia-700 px-2 py-1 rounded">DEUS SIGNAL</div>}
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="text-sm text-red-400 mb-1">DEUS EX MACHINA</div>
+            <h1 className="text-3xl font-bold mb-2">{scene.title}</h1>
+            <p className="text-sm leading-relaxed text-zinc-200">{scene.body ? scene.body[0] : scene.subtitle}</p>
+          </div>
+        </div>
+
+        {(isChoice || isReaction) && (
+          <div className="grid grid-cols-3 gap-1 bg-black p-1 border-t border-zinc-800">
+            <div className="relative h-28 overflow-hidden rounded-lg border border-zinc-800">
+              <img src={isReaction ? scene.image : scene.manga || imageSet.manga} alt="city reaction" className="w-full h-full object-cover opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+              <div className="absolute bottom-2 left-2 text-[10px] text-zinc-200">都市反応</div>
+            </div>
+            <div className="relative h-28 overflow-hidden rounded-lg border border-zinc-800">
+              <img src={imageSet.central} alt="central ai" className="w-full h-full object-cover opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+              <div className="absolute bottom-2 left-2 text-[10px] text-zinc-200">中央AI</div>
+            </div>
+            <div className="relative h-28 overflow-hidden rounded-lg border border-zinc-800">
+              <img src={imageSet.orpheus} alt="orpheus" className="w-full h-full object-cover opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+              <div className="absolute bottom-2 left-2 text-[10px] text-zinc-200">ORPHEUS</div>
+            </div>
+          </div>
+        )}
+
+        <div className="p-4 border-t border-zinc-800 space-y-3 text-sm leading-relaxed">
+          {scene.body?.slice(1).map((line, index) => (
+            <p key={`${scene.id}-body-${index}`} className="text-zinc-300">{line}</p>
+          ))}
+
+          {(isChoice || isReaction) && (
+            <>
+              <div className="bg-red-950/30 border border-red-900 rounded-xl p-3">
+                <span className="text-red-400 font-semibold">中央管理AI：</span>
+                <p className="text-zinc-300 mt-1">「{scene.centralAI}」</p>
+              </div>
+              <OrpheusLine text={scene.orpheus} />
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-cyan-200">
+                {scene.observation}
+              </div>
+            </>
+          )}
+
+          {isEnding && (
+            <div className="bg-zinc-900 border border-red-900 rounded-xl p-3 text-sm text-red-200">
+              {scene.result}
+            </div>
+          )}
+        </div>
+
+        {isChoice && <StatusGrid status={scene.status} />}
+
+        <div className="border-t border-zinc-800 p-4 space-y-2">
+          {isTitle && (
+            <button onClick={() => moveToScene(scene.next)} className="w-full text-left bg-cyan-950 hover:bg-cyan-900 border border-cyan-700 transition rounded-xl px-4 py-3 text-sm font-semibold">
+              START
+            </button>
+          )}
+
+          {isPrologue && (
+            <button onClick={() => moveToScene(scene.next)} className="w-full text-left bg-cyan-950 hover:bg-cyan-900 border border-cyan-700 transition rounded-xl px-4 py-3 text-sm font-semibold">
+              {scene.button}
+            </button>
+          )}
+
+          {isChoice && scene.choices.map((choice, index) => (
+            <button key={`${scene.id}-${choice.label}`} onClick={() => chooseAction(choice)} className="w-full text-left bg-zinc-900 hover:bg-cyan-950 border border-zinc-800 hover:border-cyan-700 transition rounded-xl px-4 py-3 text-sm">
+              <div>{index + 1}. {choice.label}</div>
+              <div className="text-xs text-zinc-500 mt-1">{choice.note}</div>
+            </button>
+          ))}
+
+          {isReaction && (
+            <button onClick={() => moveToScene(scene.next)} className="w-full text-left bg-cyan-950 hover:bg-cyan-900 border border-cyan-700 transition rounded-xl px-4 py-3 text-sm font-semibold">
+              次へ進む
+            </button>
+          )}
+
+          {isEnding && (
+            <button onClick={() => moveToScene("title")} className="w-full text-left bg-zinc-900 hover:bg-cyan-950 border border-zinc-800 hover:border-cyan-700 transition rounded-xl px-4 py-3 text-sm">
+              最初からやり直す
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />)
+</script>
+</body>
+</html>
