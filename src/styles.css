@@ -228,6 +228,17 @@ button {
   font-size: 12px;
 }
 
+.memory-line {
+  border: 1px solid #3b4b3d;
+  border-radius: 8px;
+  background: rgba(21, 37, 28, 0.86);
+  color: #c9f4d6;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 12px;
+  padding: 10px 12px;
+}
+
 .ending-result {
   border: 1px solid #71313a;
   background: #181016;
@@ -270,6 +281,7 @@ button {
 
 .primary-button,
 .choice-button,
+.automata-button,
 .ai-generate-button {
   width: 100%;
   min-height: 48px;
@@ -289,11 +301,17 @@ button {
 }
 
 .choice-button small,
+.automata-button small,
 .ai-generate-button small {
   display: block;
   margin-top: 5px;
   color: #8796a1;
   line-height: 1.45;
+}
+
+.automata-button {
+  border-color: #2f7b5d;
+  background: linear-gradient(135deg, #102c2d, #163923);
 }
 
 .ai-generate-button {
@@ -319,6 +337,7 @@ button {
 
 .primary-button:hover,
 .choice-button:hover,
+.automata-button:hover,
 .ai-generate-button:hover:not(:disabled) {
   border-color: #8cecff;
   background: #0c5266;

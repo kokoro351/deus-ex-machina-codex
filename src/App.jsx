@@ -2,12 +2,14 @@ import { useMemo, useState } from "react"
 import SceneFrame from "./components/SceneFrame.jsx"
 import { imageSet } from "./data/assets.js"
 import { scenes } from "./data/scenes.js"
+import { createInitialMemory, rememberChoice, buildAutomataScene, summarizeMemory } from "./utils/orpheusAutomata.js"
 import { buildReactionScene } from "./utils/reactions.js"
 
 export default function App() {
   const [sceneId, setSceneId] = useState("title")
   const [reaction, setReaction] = useState(null)
   const [aiState, setAiState] = useState({ loading: false, error: "" })
+  const [memory, setMemory] = useState(() => createInitialMemory())
   const scene = reaction ?? scenes[sceneId] ?? scenes.title
 
   const label = useMemo(() => {
@@ -21,17 +23,30 @@ export default function App() {
   function moveToScene(nextId) {
     setReaction(null)
     setAiState({ loading: false, error: "" })
+    if (nextId === "title") setMemory(createInitialMemory())
     setSceneId(nextId)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   function chooseAction(choice) {
+    const nextMemory = rememberChoice(memory, scene, choice)
+    setMemory(nextMemory)
     setReaction(buildReactionScene(scene, choice))
     setAiState({ loading: false, error: "" })
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
+  function generateAutomataBranch() {
+    setReaction(buildAutomataScene(scene, memory))
+    setAiState({ loading: false, error: "" })
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   async function generateAiBranch() {
+    if (!window.confirm("OpenAI APIを呼び出します。少額のAPI料金が発生する可能性があります。実行しますか？")) {
+      return
+    }
+
     setAiState({ loading: true, error: "" })
 
     try {
@@ -75,8 +90,10 @@ export default function App() {
       label={label}
       onMove={moveToScene}
       onChoose={chooseAction}
+      onGenerateAutomataBranch={generateAutomataBranch}
       onGenerateAiBranch={generateAiBranch}
       aiState={aiState}
+      memorySummary={summarizeMemory(memory)}
     />
   )
 }

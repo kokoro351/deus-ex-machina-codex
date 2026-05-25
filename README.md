@@ -22,6 +22,11 @@ npm run dev
 
 ## AI生成分岐を使う場合
 
+このゲームには2種類の生成分岐があります。
+
+- `ORPHEUS Automataを起動する`: 無料。JavaScriptだけで、選択履歴から分岐を機械生成します。
+- `OpenAI APIでAI分岐を生成する`: 有料API。ローカルAIサーバーとOpenAI APIキーが必要です。
+
 AI生成分岐は、通常のゲーム起動とは別にローカルAIサーバーを起動します。
 
 1. `.env.example` をコピーして `.env` を作る

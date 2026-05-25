@@ -2,7 +2,16 @@ import { imageSet } from "../data/assets.js"
 import StatusGrid from "./StatusGrid.jsx"
 import OrpheusLine from "./OrpheusLine.jsx"
 
-export default function SceneFrame({ scene, label, onMove, onChoose, onGenerateAiBranch, aiState }) {
+export default function SceneFrame({
+  scene,
+  label,
+  onMove,
+  onChoose,
+  onGenerateAutomataBranch,
+  onGenerateAiBranch,
+  aiState,
+  memorySummary,
+}) {
   const isTitle = scene.type === "title"
   const isPrologue = scene.type === "prologue"
   const isChoice = scene.type === "choice"
@@ -45,6 +54,7 @@ export default function SceneFrame({ scene, label, onMove, onChoose, onGenerateA
             </>
           )}
 
+          {isChoice && <div className="memory-line">ORPHEUS記憶: {memorySummary}</div>}
           {isEnding && <div className="ending-result">{scene.result}</div>}
         </section>
 
@@ -54,9 +64,15 @@ export default function SceneFrame({ scene, label, onMove, onChoose, onGenerateA
           {isTitle && <PrimaryButton onClick={() => onMove(scene.next)}>START</PrimaryButton>}
           {isPrologue && <PrimaryButton onClick={() => onMove(scene.next)}>{scene.button}</PrimaryButton>}
           {isChoice && (
+            <button onClick={onGenerateAutomataBranch} className="automata-button">
+              <span>ORPHEUS Automataを起動する</span>
+              <small>無料。選択履歴から、その場だけの分岐を機械生成します</small>
+            </button>
+          )}
+          {isChoice && (
             <button onClick={onGenerateAiBranch} className="ai-generate-button" disabled={aiState.loading}>
-              <span>{aiState.loading ? "ORPHEUSが生成中..." : "ORPHEUSにAI分岐を生成させる"}</span>
-              <small>ローカルAIサーバーが起動している時だけ使えます</small>
+              <span>{aiState.loading ? "OpenAI APIで生成中..." : "OpenAI APIでAI分岐を生成する"}</span>
+              <small>有料API。ローカルAIサーバーが起動している時だけ使えます</small>
             </button>
           )}
           {isChoice && aiState.error && <div className="ai-error">{aiState.error}</div>}
