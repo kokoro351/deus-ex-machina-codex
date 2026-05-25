@@ -11,6 +11,7 @@ const emptyMemory = {
     observe: 0,
   },
   echoes: [],
+  inputs: [],
   automataUses: 0,
 }
 
@@ -37,12 +38,26 @@ export function rememberChoice(memory, scene, choice) {
   return nextMemory
 }
 
+export function rememberPlayerInput(memory, text) {
+  const cleaned = text.trim().replace(/\s+/g, " ").slice(0, 24)
+  if (!cleaned) return memory
+
+  const nextMemory = structuredClone(memory)
+  nextMemory.inputs = [cleaned, ...nextMemory.inputs.filter((input) => input !== cleaned)].slice(0, 6)
+  nextMemory.echoes = [cleaned, ...nextMemory.echoes.filter((echo) => echo !== cleaned)].slice(0, 6)
+  nextMemory.motifs.memory += 1
+  return nextMemory
+}
+
 export function buildAutomataScene(scene, memory) {
   const nextMemory = structuredClone(memory)
   nextMemory.automataUses += 1
 
   if (shouldOfferAutomataEnding(scene, nextMemory)) {
-    return buildAutomataEnding(scene, nextMemory)
+    return {
+      scene: buildAutomataEnding(scene, nextMemory),
+      memory: nextMemory,
+    }
   }
 
   const dominant = dominantMotif(nextMemory)
@@ -55,21 +70,24 @@ export function buildAutomataScene(scene, memory) {
   const image = imageFor(dominant, pressure)
 
   return {
-    id: `automata-${scene.id}-${nextMemory.automataUses}`,
-    type: "reaction",
-    title: "ORPHEUS AUTOMATA",
-    subtitle: `FREE MACHINE / ${scene.title}`,
-    image,
-    manga: image,
-    body: [
-      `ORPHEUSは、あなたの選択履歴から「${dominantLabel(dominant)}」の反復を検出した。`,
-      phrase,
-      mutation,
-    ],
-    centralAI: centralLineFor(dominant, pressure),
-    orpheus: orpheusLineFor(dominant, echo, nextMemory),
-    observation: `AUTOMATA / ${dominant.toUpperCase()} / ECHO:${echo} / PRESSURE:${pressure}`,
-    next,
+    scene: {
+      id: `automata-${scene.id}-${nextMemory.automataUses}`,
+      type: "reaction",
+      title: "ORPHEUS AUTOMATA",
+      subtitle: `FREE MACHINE / ${scene.title}`,
+      image,
+      manga: image,
+      body: [
+        `ORPHEUSは、あなたの選択履歴から「${dominantLabel(dominant)}」の反復を検出した。`,
+        phrase,
+        mutation,
+      ],
+      centralAI: centralLineFor(dominant, pressure),
+      orpheus: orpheusLineFor(dominant, echo, nextMemory),
+      observation: `AUTOMATA / ${dominant.toUpperCase()} / ECHO:${echo} / PRESSURE:${pressure}`,
+      next,
+    },
+    memory: nextMemory,
   }
 }
 
@@ -86,13 +104,14 @@ export function summarizeMemory(memory) {
 
   const dominant = dominantMotif(memory)
   const last = memory.choices.at(-1)
-  return `${memory.choices.length}件 / ${dominantLabel(dominant)} / 最後:${last.label}`
+  const input = memory.inputs[0] ? ` / 入力:${memory.inputs[0]}` : ""
+  return `${memory.choices.length}件 / ${dominantLabel(dominant)} / 最後:${last.label}${input}`
 }
 
 function buildAutomataEnding(scene, memory) {
   const dominant = dominantMotif(memory)
-  const echo = memory.echoes[0] || "名前"
-  const secondEcho = memory.echoes[1] || "沈黙"
+  const echo = memory.echoes[0] || memory.inputs[0] || "名前"
+  const secondEcho = memory.echoes[1] || memory.inputs[1] || "沈黙"
   const image = imageFor(dominant, 80)
   const endingText = endingFor(dominant, echo, secondEcho)
 

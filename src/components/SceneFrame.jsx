@@ -8,8 +8,11 @@ export default function SceneFrame({
   onMove,
   onChoose,
   onGenerateAutomataBranch,
+  onPlayerInputChange,
+  onRememberInput,
   canGenerateAutomataEnding,
   memorySummary,
+  playerInput,
 }) {
   const isTitle = scene.type === "title"
   const isPrologue = scene.type === "prologue"
@@ -59,6 +62,21 @@ export default function SceneFrame({
             </>
           )}
 
+          {isChoice && (
+            <form className="memory-input" onSubmit={onRememberInput}>
+              <label htmlFor="orpheus-memory-input">ORPHEUSへ記憶語を送る</label>
+              <div>
+                <input
+                  id="orpheus-memory-input"
+                  value={playerInput}
+                  onChange={(event) => onPlayerInputChange(event.target.value)}
+                  maxLength={24}
+                  placeholder="例: 海、母、沈黙、約束"
+                />
+                <button type="submit" disabled={!playerInput.trim()}>記憶</button>
+              </div>
+            </form>
+          )}
           {isChoice && <div className="memory-line">ORPHEUS記憶: {memorySummary}</div>}
           {isEnding && <div className="ending-result">{scene.result}</div>}
         </section>

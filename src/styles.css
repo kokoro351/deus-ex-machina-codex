@@ -239,6 +239,50 @@ button {
   padding: 10px 12px;
 }
 
+.memory-input {
+  border: 1px solid #2f5461;
+  border-radius: 8px;
+  background: rgba(7, 22, 30, 0.78);
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.memory-input label {
+  color: #8cecff;
+  display: block;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.memory-input div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.memory-input input {
+  min-width: 0;
+  border: 1px solid #263849;
+  border-radius: 8px;
+  background: #080b10;
+  color: #f6fbff;
+  padding: 10px 11px;
+}
+
+.memory-input button {
+  border: 1px solid #2f7b5d;
+  border-radius: 8px;
+  background: #163923;
+  color: #edfaff;
+  cursor: pointer;
+  padding: 10px 12px;
+}
+
+.memory-input button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .ending-result {
   border: 1px solid #71313a;
   background: #181016;

@@ -5,6 +5,7 @@ import {
   buildAutomataScene,
   createInitialMemory,
   rememberChoice,
+  rememberPlayerInput,
   shouldOfferAutomataEnding,
   summarizeMemory,
 } from "./utils/orpheusAutomata.js"
@@ -14,6 +15,7 @@ export default function App() {
   const [sceneId, setSceneId] = useState("title")
   const [reaction, setReaction] = useState(null)
   const [memory, setMemory] = useState(() => createInitialMemory())
+  const [playerInput, setPlayerInput] = useState("")
   const scene = reaction ?? scenes[sceneId] ?? scenes.title
 
   const label = useMemo(() => {
@@ -39,8 +41,16 @@ export default function App() {
   }
 
   function generateAutomataBranch() {
-    setReaction(buildAutomataScene(scene, memory))
+    const result = buildAutomataScene(scene, memory)
+    setMemory(result.memory)
+    setReaction(result.scene)
     window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  function submitPlayerInput(event) {
+    event.preventDefault()
+    setMemory(rememberPlayerInput(memory, playerInput))
+    setPlayerInput("")
   }
 
   return (
@@ -50,8 +60,11 @@ export default function App() {
       onMove={moveToScene}
       onChoose={chooseAction}
       onGenerateAutomataBranch={generateAutomataBranch}
+      onPlayerInputChange={setPlayerInput}
+      onRememberInput={submitPlayerInput}
       canGenerateAutomataEnding={shouldOfferAutomataEnding(scene, memory)}
       memorySummary={summarizeMemory(memory)}
+      playerInput={playerInput}
     />
   )
 }
