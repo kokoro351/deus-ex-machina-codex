@@ -3,6 +3,7 @@ import SceneFrame from "./components/SceneFrame.jsx"
 import { scenes } from "./data/scenes.js"
 import {
   buildAutomataScene,
+  contaminateChoices,
   createInitialMemory,
   rememberChoice,
   rememberPlayerInput,
@@ -17,6 +18,7 @@ export default function App() {
   const [memory, setMemory] = useState(() => createInitialMemory())
   const [playerInput, setPlayerInput] = useState("")
   const scene = reaction ?? scenes[sceneId] ?? scenes.title
+  const displayedChoices = scene.type === "choice" ? contaminateChoices(scene.choices, memory) : []
 
   const label = useMemo(() => {
     if (scene.type === "title") return "TITLE"
@@ -59,6 +61,7 @@ export default function App() {
       label={label}
       onMove={moveToScene}
       onChoose={chooseAction}
+      displayedChoices={displayedChoices}
       onGenerateAutomataBranch={generateAutomataBranch}
       onPlayerInputChange={setPlayerInput}
       onRememberInput={submitPlayerInput}

@@ -7,6 +7,7 @@ export default function SceneFrame({
   label,
   onMove,
   onChoose,
+  displayedChoices,
   onGenerateAutomataBranch,
   onPlayerInputChange,
   onRememberInput,
@@ -92,9 +93,12 @@ export default function SceneFrame({
               <small>{automataNote}</small>
             </button>
           )}
-          {isChoice && scene.choices.map((choice, index) => (
+          {isChoice && displayedChoices.map((choice, index) => (
             <button key={`${scene.id}-${choice.label}`} onClick={() => onChoose(choice)} className="choice-button">
               <span>{index + 1}. {choice.label}</span>
+              {choice.originalLabel && choice.originalLabel !== choice.label && (
+                <em>元選択: {choice.originalLabel}</em>
+              )}
               <small>{choice.note}</small>
             </button>
           ))}

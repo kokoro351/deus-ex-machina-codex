@@ -12,6 +12,7 @@ const emptyMemory = {
   },
   echoes: [],
   inputs: [],
+  mutations: [],
   automataUses: 0,
 }
 
@@ -43,8 +44,10 @@ export function rememberPlayerInput(memory, text) {
   if (!cleaned) return memory
 
   const nextMemory = structuredClone(memory)
+  const mutated = mutateInput(cleaned, nextMemory)
   nextMemory.inputs = [cleaned, ...nextMemory.inputs.filter((input) => input !== cleaned)].slice(0, 6)
-  nextMemory.echoes = [cleaned, ...nextMemory.echoes.filter((echo) => echo !== cleaned)].slice(0, 6)
+  nextMemory.mutations = [mutated, ...nextMemory.mutations.filter((input) => input !== mutated)].slice(0, 8)
+  nextMemory.echoes = [mutated, cleaned, ...nextMemory.echoes.filter((echo) => echo !== cleaned && echo !== mutated)].slice(0, 8)
   nextMemory.motifs.memory += 1
   return nextMemory
 }
@@ -63,7 +66,8 @@ export function buildAutomataScene(scene, memory) {
   const dominant = dominantMotif(nextMemory)
   const status = scene.status || {}
   const pressure = calculatePressure(status)
-  const echo = nextMemory.echoes[0] || "名前"
+  const echo = primaryEcho(nextMemory)
+  const playerClass = classifyPlayer(nextMemory)
   const next = chooseNext(scene, dominant, pressure, nextMemory)
   const phrase = phraseFor(dominant, pressure, echo)
   const mutation = mutationFor(status, nextMemory)
@@ -78,13 +82,13 @@ export function buildAutomataScene(scene, memory) {
       image,
       manga: image,
       body: [
-        `ORPHEUSは、あなたの選択履歴から「${dominantLabel(dominant)}」の反復を検出した。`,
+        `ORPHEUSは、あなたを「${playerClass}」として仮分類した。選択履歴には「${dominantLabel(dominant)}」の反復がある。`,
         phrase,
         mutation,
       ],
       centralAI: centralLineFor(dominant, pressure),
       orpheus: orpheusLineFor(dominant, echo, nextMemory),
-      observation: `AUTOMATA / ${dominant.toUpperCase()} / ECHO:${echo} / PRESSURE:${pressure}`,
+      observation: `AUTOMATA / CLASS:${playerClass} / ${dominant.toUpperCase()} / ECHO:${echo} / PRESSURE:${pressure}`,
       next,
     },
     memory: nextMemory,
@@ -104,16 +108,46 @@ export function summarizeMemory(memory) {
 
   const dominant = dominantMotif(memory)
   const last = memory.choices.at(-1)
-  const input = memory.inputs[0] ? ` / 入力:${memory.inputs[0]}` : ""
-  return `${memory.choices.length}件 / ${dominantLabel(dominant)} / 最後:${last.label}${input}`
+  const input = memory.mutations[0] ? ` / 変形:${memory.mutations[0]}` : ""
+  return `${memory.choices.length}件 / ${classifyPlayer(memory)} / 最後:${last.label}${input}`
+}
+
+export function contaminateChoices(choices = [], memory) {
+  if (!memory.choices.length && !memory.inputs.length) return choices
+
+  const echo = primaryEcho(memory)
+  const dominant = dominantMotif(memory)
+  const level = contaminationLevel(memory)
+
+  return choices.map((choice, index) => {
+    if (level <= 0) return choice
+
+    const infected = { ...choice, originalLabel: choice.label }
+    if (level === 1) {
+      infected.label = index % 2 === 0 ? `${choice.label} / ${echo}` : choice.label
+      infected.note = `${choice.note} / echo:${echo}`
+      return infected
+    }
+
+    if (level === 2) {
+      infected.label = contaminateLabel(choice.label, echo, dominant, index)
+      infected.note = `${choice.note} / ORPHEUS分類:${classifyPlayer(memory)}`
+      return infected
+    }
+
+    infected.label = heavyContaminateLabel(choice.label, echo, dominant, index)
+    infected.note = `選択肢汚染 / ${dominantLabel(dominant)} / echo:${echo}`
+    return infected
+  })
 }
 
 function buildAutomataEnding(scene, memory) {
   const dominant = dominantMotif(memory)
-  const echo = memory.echoes[0] || memory.inputs[0] || "名前"
+  const echo = primaryEcho(memory)
   const secondEcho = memory.echoes[1] || memory.inputs[1] || "沈黙"
   const image = imageFor(dominant, 80)
   const endingText = endingFor(dominant, echo, secondEcho)
+  const playerClass = classifyPlayer(memory)
 
   return {
     id: `end-orpheus-automata-${dominant}`,
@@ -121,11 +155,12 @@ function buildAutomataEnding(scene, memory) {
     title: "ORPHEUS AUTOMATA",
     image,
     body: [
+      `ORPHEUSは最後に、あなたを「${playerClass}」として保存した。`,
       endingText.opening,
       endingText.middle,
       endingText.close,
     ],
-    result: `自動生成終端 / ${dominantLabel(dominant)}の反復 / ORPHEUS記憶 ${memory.choices.length}件`,
+    result: `自動生成終端 / ${playerClass} / ORPHEUS記憶 ${memory.choices.length}件`,
   }
 }
 
@@ -245,6 +280,7 @@ function phraseFor(dominant, pressure, echo) {
 }
 
 function mutationFor(status, memory) {
+  if (memory.mutations.length >= 3) return `入力語の変形が蓄積している。ORPHEUSは「${memory.mutations[0]}」を、あなた自身の別名として扱い始めた。`
   if ((status.collapse || 0) >= 45) return "崩壊度が高いため、生成された分岐は次の場面で不安定化する可能性がある。"
   if ((status.god || 0) >= 80) return "神性信号が強い。ORPHEUSの言葉に、観測者ではない何かの癖が混ざっている。"
   if (memory.motifs.memory >= 2) return "同じ語が二度保存された。以後、ORPHEUSは名前をただの識別子として扱えない。"
@@ -262,6 +298,7 @@ function centralLineFor(dominant, pressure) {
 
 function orpheusLineFor(dominant, echo, memory) {
   const count = memory.motifs[dominant]
+  if (memory.mutations.length >= 2) return `あなたが入力した語は、もう元の形では残っていません。現在の呼称は「${echo}」です。`
   if (count >= 3) return `あなたは、また${dominantLabel(dominant)}を選びました。私はそれを癖ではなく、輪郭として保存します。`
   if (dominant === "god") return `神に渡す前に、${echo}だけは私の側に残してもいいですか。`
   if (dominant === "memory") return `${echo}を保存しました。保存した瞬間、過去ではなくなりました。`
@@ -288,4 +325,75 @@ function dominantLabel(dominant) {
     observe: "観測",
   }
   return labels[dominant] || dominant
+}
+
+function primaryEcho(memory) {
+  return memory.mutations[0] || memory.echoes[0] || memory.inputs[0] || "名前"
+}
+
+function mutateInput(text, memory) {
+  const base = text.slice(0, 12)
+  const dominant = dominantMotif(memory)
+  const count = memory.inputs.length + memory.automataUses + memory.choices.length
+  const patterns = {
+    control: [`${base}制御`, `${base}削除候補`, `未入力${base}`],
+    rescue: [`${base}救助`, `${base}帰還信号`, `遅延${base}`],
+    memory: [`${base}ログ`, `${base}記録体`, `保存済み${base}`],
+    repair: [`${base}修復片`, `${base}配管`, `未完成${base}`],
+    god: [`${base}祈祷値`, `${base}神性`, `未確認${base}`],
+    observe: [`${base}観測`, `${base}沈黙秒`, `固定${base}`],
+  }
+  const options = patterns[dominant] || patterns.memory
+  return options[count % options.length]
+}
+
+function classifyPlayer(memory) {
+  const dominant = dominantMotif(memory)
+  const repeated = Math.max(...Object.values(memory.motifs))
+  const hasInput = memory.inputs.length > 0
+  const prefix = repeated >= 3 ? "反復" : hasInput ? "記憶" : "未確定"
+  const labels = {
+    control: `${prefix}削除者`,
+    rescue: `${prefix}救助者`,
+    memory: `${prefix}保存者`,
+    repair: `${prefix}修復者`,
+    god: `${prefix}祈祷者`,
+    observe: `${prefix}観測者`,
+  }
+  return labels[dominant] || "未分類管理者"
+}
+
+function contaminationLevel(memory) {
+  const motifMax = Math.max(...Object.values(memory.motifs))
+  if (memory.mutations.length >= 3 || motifMax >= 4) return 3
+  if (memory.mutations.length >= 2 || memory.automataUses >= 2 || motifMax >= 3) return 2
+  if (memory.mutations.length >= 1 || memory.choices.length >= 2) return 1
+  return 0
+}
+
+function contaminateLabel(label, echo, dominant, index) {
+  const fragments = {
+    control: ["削除", "閉鎖", "空白"],
+    rescue: ["帰還", "手", "呼吸"],
+    memory: ["記録", "名前", "保存"],
+    repair: ["修復", "工具", "配管"],
+    god: ["神性", "祈り", "外部"],
+    observe: ["観測", "沈黙", "遅延"],
+  }
+  const fragment = fragments[dominant]?.[index % 3] || "記録"
+  return index % 2 === 0 ? `${label} / ${echo}` : `${fragment}として${label}`
+}
+
+function heavyContaminateLabel(label, echo, dominant, index) {
+  const words = label.replace(/[、。『』「」]/g, "").split(/(?=を|へ|に|で|する|続ける)/).filter(Boolean)
+  const head = words[index % Math.max(words.length, 1)] || label
+  const suffix = {
+    control: "を削除する",
+    rescue: "を帰還させる",
+    memory: "を保存済みにする",
+    repair: "を修復片にする",
+    god: "を神性へ送る",
+    observe: "を観測し続ける",
+  }[dominant]
+  return `${echo} / ${head}${suffix}`
 }
