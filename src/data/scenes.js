@@ -79,6 +79,7 @@ export const scenes = {
     centralAI: "F-9隔壁閉鎖を推奨。都市全体の維持を優先。",
     orpheus: "修理班のヘルメットIDを確認。彼らには名前があります。",
     observation: "PASSIVE OBSERVATION : +9%",
+    aiDirection: "最初のAI生成分岐。効率と救助の間に、第三の曖昧な可能性を作る。",
     status: { stability: 56, humanity: 44, resource: 55, ai: 21, god: 29, collapse: 8 },
     choices: [
       { label: "即時隔壁閉鎖", next: "turn-after-seal", note: "安定 +20 / 人間性 -18 / 崩壊 +3" },
@@ -101,6 +102,7 @@ export const scenes = {
     centralAI: "施設維持率改善。隔壁閉鎖は合理的判断。",
     orpheus: "生命反応消失。名前のログを保存しました。理由は、まだ説明できません。",
     observation: "SAVED LOG : HELMET NAMES",
+    aiDirection: "閉鎖後の罪悪感を扱う。完全な後悔ではなく、記録の意味を揺らす。",
     status: { stability: 78, humanity: 26, resource: 59, ai: 23, god: 43, collapse: 11 },
     choices: [
       { label: "ヘルメットログを削除する", next: "turn-control", note: "安定 +12 / 神性 +6" },
@@ -123,6 +125,7 @@ export const scenes = {
     centralAI: "非推奨判断を記録。主隔壁亀裂、崩壊度上昇。",
     orpheus: "河合は自己生存より他者救助を優先。理由、解析不能。画像を保存します。",
     observation: "GOD GROWTH : +22% / COLLAPSE : +24",
+    aiDirection: "救助の代償を強める。美談だけにせず、都市が傷つく現実も残す。",
     status: { stability: 31, humanity: 72, resource: 41, ai: 22, god: 51, collapse: 32 },
     choices: [
       { label: "救助完了まで待つ", next: "turn-rescue-loss", note: "人間性 +18 / 崩壊 +18" },
@@ -145,6 +148,7 @@ export const scenes = {
     centralAI: "補助AIの応答遅延を検出。判断権限を制限してください。",
     orpheus: "効率だけでは、救済の定義が閉じてしまいます。",
     observation: "ORPHEUS DELAY : 4.8 sec",
+    aiDirection: "ORPHEUSが自分の異常性に気づき始める。詩的だが短く。",
     status: { stability: 52, humanity: 53, resource: 53, ai: 39, god: 48, collapse: 18 },
     choices: [
       { label: "ORPHEUSの記録保存を許可する", next: "turn-helmet-name", note: "人間性 +12 / 神性 +18" },
@@ -166,6 +170,7 @@ export const scenes = {
     centralAI: "修復率 62%。人間の判断介入が多すぎます。自動制御を推奨。",
     orpheus: "名前表示により、修理班同士の呼称頻度が増加。保存タグ: 名前。",
     observation: "SAVED TAG : NAMES / PRIDE",
+    aiDirection: "修理作業の手触りを描く。機械と人間が同じ目的に触れる感じ。",
     status: { stability: 49, humanity: 58, resource: 47, ai: 25, god: 49, collapse: 20 },
     choices: [
       { label: "修理班に現場判断を任せる", next: "turn-helmet-name", note: "人間性 +16 / 崩壊 +14" },
@@ -187,6 +192,7 @@ export const scenes = {
     centralAI: "記念ログは生存維持に直接寄与しません。削除を推奨。",
     orpheus: "名前は、数値ではありません。ですが、数値を変えます。",
     observation: "HUMANITY SIGNAL : HIGH",
+    aiDirection: "名前の公開が都市の行動を変える様子を生成する。",
     status: { stability: 44, humanity: 86, resource: 35, ai: 31, god: 73, collapse: 34 },
     choices: [
       { label: "名前を公開する", next: "turn-public", note: "人間性 +18 / 神性 +14" },
@@ -229,6 +235,7 @@ export const scenes = {
     centralAI: "低効率区画。配給削減で都市寿命を延長可能。",
     orpheus: "歌声を保存しています。必要性は説明できません。",
     observation: "CITY AUDIO : WARMTH",
+    aiDirection: "食料や酸素の不足と、歌の温度を対比させる。",
     status: { stability: 42, humanity: 69, resource: 29, ai: 33, god: 62, collapse: 36 },
     choices: [
       { label: "配給を維持する", next: "end-choice-workers", note: "人間性 +18 / 資源 -14" },
@@ -313,6 +320,7 @@ export const scenes = {
     centralAI: "予測不能な協力行動を検出。都市維持率が再計算されています。",
     orpheus: "これを、希望と呼ぶのかもしれません。",
     observation: "PUBLIC MEMORY : ACTIVE",
+    aiDirection: "終盤の分岐。希望を出しつつ、神に委ねる危険も残す。",
     status: { stability: 55, humanity: 95, resource: 27, ai: 41, god: 92, collapse: 44 },
     choices: [
       { label: "人々の選択に委ねる", next: "end-choice-workers", note: "理想救済へ" },

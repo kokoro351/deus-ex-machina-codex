@@ -1,8 +1,8 @@
-﻿import { imageSet } from "../data/assets.js"
+import { imageSet } from "../data/assets.js"
 import StatusGrid from "./StatusGrid.jsx"
 import OrpheusLine from "./OrpheusLine.jsx"
 
-export default function SceneFrame({ scene, label, onMove, onChoose }) {
+export default function SceneFrame({ scene, label, onMove, onChoose, onGenerateAiBranch, aiState }) {
   const isTitle = scene.type === "title"
   const isPrologue = scene.type === "prologue"
   const isChoice = scene.type === "choice"
@@ -53,6 +53,13 @@ export default function SceneFrame({ scene, label, onMove, onChoose }) {
         <section className="action-panel">
           {isTitle && <PrimaryButton onClick={() => onMove(scene.next)}>START</PrimaryButton>}
           {isPrologue && <PrimaryButton onClick={() => onMove(scene.next)}>{scene.button}</PrimaryButton>}
+          {isChoice && (
+            <button onClick={onGenerateAiBranch} className="ai-generate-button" disabled={aiState.loading}>
+              <span>{aiState.loading ? "ORPHEUSが生成中..." : "ORPHEUSにAI分岐を生成させる"}</span>
+              <small>ローカルAIサーバーが起動している時だけ使えます</small>
+            </button>
+          )}
+          {isChoice && aiState.error && <div className="ai-error">{aiState.error}</div>}
           {isChoice && scene.choices.map((choice, index) => (
             <button key={`${scene.id}-${choice.label}`} onClick={() => onChoose(choice)} className="choice-button">
               <span>{index + 1}. {choice.label}</span>

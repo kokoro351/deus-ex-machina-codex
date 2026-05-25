@@ -269,7 +269,8 @@ button {
 }
 
 .primary-button,
-.choice-button {
+.choice-button,
+.ai-generate-button {
   width: 100%;
   min-height: 48px;
   border-radius: 8px;
@@ -287,15 +288,38 @@ button {
   background: #111820;
 }
 
-.choice-button small {
+.choice-button small,
+.ai-generate-button small {
   display: block;
   margin-top: 5px;
   color: #8796a1;
   line-height: 1.45;
 }
 
+.ai-generate-button {
+  border-color: #7b3fb2;
+  background: linear-gradient(135deg, #162c3a, #331b4a);
+}
+
+.ai-generate-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
+.ai-error {
+  border: 1px solid #8f2632;
+  border-radius: 8px;
+  background: rgba(92, 13, 24, 0.36);
+  color: #ffd2d8;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .primary-button:hover,
-.choice-button:hover {
+.choice-button:hover,
+.ai-generate-button:hover:not(:disabled) {
   border-color: #8cecff;
   background: #0c5266;
   transform: translateY(-1px);
