@@ -18,49 +18,38 @@ npm install
 npm run dev
 ```
 
-表示されたURL、たとえば `http://127.0.0.1:5173/` をブラウザで開くと遊べます。
+表示されたURL、たとえば `http://127.0.0.1:5173/deus-ex-machina-codex/` をブラウザで開くと遊べます。
 
-## AI生成分岐を使う場合
+PowerShellで `npm` が止められる場合は、次のように `npm.cmd` を使ってください。
 
-このゲームには2種類の生成分岐があります。
-
-- `ORPHEUS Automataを起動する`: 無料。JavaScriptだけで、選択履歴から分岐を機械生成します。
-- `OpenAI APIでAI分岐を生成する`: 有料API。ローカルAIサーバーとOpenAI APIキーが必要です。
-
-AI生成分岐は、通常のゲーム起動とは別にローカルAIサーバーを起動します。
-
-1. `.env.example` をコピーして `.env` を作る
-2. `.env` の `OPENAI_API_KEY` に自分のOpenAI APIキーを書く
-3. PowerShellを2つ開く
-
-1つ目:
-
-```bash
-npm run dev
+```powershell
+npm.cmd run dev
 ```
 
-2つ目:
+## ORPHEUS Automata
 
-```bash
-npm run ai-server
-```
+この版には、OpenAI APIを使わない無料の機械生成分岐があります。
 
-ゲーム中の選択肢画面で `ORPHEUSにAI分岐を生成させる` を押すと、ローカルAIサーバー経由で分岐が生成されます。
+選択肢画面で `ORPHEUS Automataを起動する` を押すと、プレイヤーの選択履歴から、その場だけの反応や分岐を生成します。
 
-詳しくは `docs/local-ai-server.md` を見てください。
+記憶が一定以上たまると、ボタンが `ORPHEUS Automataの結末を見る` に変わり、専用エンディングへ進めます。
+
+詳しくは `docs/orpheus-automata.md` を見てください。
 
 ## よく編集する場所
 
-- `src/data/scenes.js`: シナリオ本文、選択肢、分岐先、エンディング
+- `src/data/scenes.js`: シナリオ本文、選択肢、分岐先、通常エンディング
+- `src/utils/orpheusAutomata.js`: ORPHEUS Automata の記憶・分類・生成・専用エンディング
 - `src/data/assets.js`: 画像URL
 - `src/styles.css`: 見た目
 - `src/components/`: 画面部品
 - `docs/codex-editing-guide.md`: Codexへ依頼するときの書き方
-- `server/ai-server.js`: OpenAI APIを呼ぶローカルAIサーバー
 
 ## 初心者向けメモ
 
-文章だけ直したいときは、ほぼ `src/data/scenes.js` だけ見れば大丈夫です。
+文章だけ直したいときは、まず `src/data/scenes.js` を見れば大丈夫です。
+
+Automataの挙動を変えたいときは、`src/utils/orpheusAutomata.js` を編集します。
 
 選択肢の `next` には、次に進むシーンの `id` を書きます。存在しない `id` を書くと、選んだあとに想定外の画面になります。
 
